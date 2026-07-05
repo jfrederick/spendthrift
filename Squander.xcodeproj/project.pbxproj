@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		13F01C69CFD6F77CDF0776C3 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6515C58D43ECEA95604714C1 /* InsightsView.swift */; };
 		15E081D31428DC249BC93F97 /* DeleteCategoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509D78D61FC9BC1E1F621093 /* DeleteCategoryTests.swift */; };
 		1E6728F32E25D5D236269880 /* UpdateExpenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B238D140FBB7D4566B09C807 /* UpdateExpenseTests.swift */; };
 		2B6874B0CA1ECB102FAA7F1F /* SquanderCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8E1AC61DB3F596CB4C54D817 /* SquanderCore */; };
 		365638772AD7450D9BD2C009 /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94800179C5324FCA3F6DAD84 /* EntryView.swift */; };
 		3BE4FFE0640F2883A62787B2 /* DeleteRestoreExpenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57E302A8292C377F1FDB0DA /* DeleteRestoreExpenseTests.swift */; };
+		4A29A0E8D27A9C45741A0C26 /* TrendChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7A2619AEB66E2C2478FEF98 /* TrendChartView.swift */; };
 		4F65E8C9C8CA37E1BCBF1F88 /* ExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAF5DDE861C8092C3FC11850 /* ExpenseListView.swift */; };
 		5239BF55B0BC3F24A3D0EFC9 /* TotalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0A85427044691F0F31A236D /* TotalsView.swift */; };
 		526EF03F23CBD088AA784E2B /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADBA2C3590AAC7066CB20879 /* RootTabView.swift */; };
@@ -64,6 +66,7 @@
 		57387E0A7832E950FDAD89D5 /* SquanderTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SquanderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58A505466A08BF575B1B072E /* PersistenceRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceRoundTripTests.swift; sourceTree = "<group>"; };
 		5D035D86217CC54ACEE5D7E2 /* TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
+		6515C58D43ECEA95604714C1 /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
 		674548BF223A6281DED78ACF /* ExpenseEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseEditView.swift; sourceTree = "<group>"; };
 		6EA8E2B679EDF4EA8F8DF890 /* Squander.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Squander.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		73CBDB3D61556D5FF1393D03 /* SquanderCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SquanderCore; path = SquanderCore; sourceTree = SOURCE_ROOT; };
@@ -75,6 +78,7 @@
 		AA9B1B65D5B6EDE27F345389 /* ExpenseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseStore.swift; sourceTree = "<group>"; };
 		ADBA2C3590AAC7066CB20879 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
 		B238D140FBB7D4566B09C807 /* UpdateExpenseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateExpenseTests.swift; sourceTree = "<group>"; };
+		B7A2619AEB66E2C2478FEF98 /* TrendChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendChartView.swift; sourceTree = "<group>"; };
 		CAF5DDE861C8092C3FC11850 /* ExpenseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseListView.swift; sourceTree = "<group>"; };
 		D0A85427044691F0F31A236D /* TotalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalsView.swift; sourceTree = "<group>"; };
 		D3270479B4CF8246B8775FD5 /* SquanderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquanderApp.swift; sourceTree = "<group>"; };
@@ -189,9 +193,11 @@
 				674548BF223A6281DED78ACF /* ExpenseEditView.swift */,
 				CAF5DDE861C8092C3FC11850 /* ExpenseListView.swift */,
 				E5AC2402ADC18092DD498B0F /* Formatting.swift */,
+				6515C58D43ECEA95604714C1 /* InsightsView.swift */,
 				15877F321A9363545092344B /* KeypadView.swift */,
 				ADBA2C3590AAC7066CB20879 /* RootTabView.swift */,
 				D0A85427044691F0F31A236D /* TotalsView.swift */,
+				B7A2619AEB66E2C2478FEF98 /* TrendChartView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -326,11 +332,13 @@
 				4F65E8C9C8CA37E1BCBF1F88 /* ExpenseListView.swift in Sources */,
 				D1C0037452D84A84AC7CF55A /* ExpenseStore.swift in Sources */,
 				E8EB939CDEC854901FDC7F9D /* Formatting.swift in Sources */,
+				13F01C69CFD6F77CDF0776C3 /* InsightsView.swift in Sources */,
 				C208424076069ED3BBDCE847 /* KeypadView.swift in Sources */,
 				526EF03F23CBD088AA784E2B /* RootTabView.swift in Sources */,
 				7411BBA63B39E22387416A91 /* SquanderApp.swift in Sources */,
 				76E6064DF3E371554AE6DC26 /* SquanderSchema.swift in Sources */,
 				5239BF55B0BC3F24A3D0EFC9 /* TotalsView.swift in Sources */,
+				4A29A0E8D27A9C45741A0C26 /* TrendChartView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
