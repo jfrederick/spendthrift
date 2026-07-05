@@ -1,4 +1,4 @@
-# squander
+# spendthrift
 
 A personal iOS spending tracker built for speed: keypad amount → short description → confirm category → done. No budgeting, no accounts, no network — local-only, and the whole point is to make logging an expense faster than the purchase itself.
 
