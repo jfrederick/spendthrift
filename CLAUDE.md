@@ -19,17 +19,22 @@ there (OpenSpec), and no other spec/planning documents may be added to the repo.
 - `SquanderUITests/` — XCUITest; launch args `-UITestMode` (in-memory store)
   and `-UITestSeedData` (fixed dataset).
 
-## Build & test on this machine (no Xcode.app, CLT only)
+## Build & test on this machine
 
-- SquanderCore tests work locally but CLT doesn't ship Swift Testing on the
-  default search path. Use:
-  `cd SquanderCore && swift test -Xswiftc -F -Xswiftc /Library/Developer/CommandLineTools/Library/Developer/Frameworks -Xlinker -F -Xlinker /Library/Developer/CommandLineTools/Library/Developer/Frameworks`
-  (first run may also need `Testing.framework` and `lib_TestingInterop.dylib`
-  copied from that Frameworks dir into `.build/debug/`). Keep this green.
-- The app target, SwiftData `@Model` code, and UI tests **cannot compile
-  locally** (the CLT toolchain lacks the SwiftData macro plugin and iOS SDK).
-  They build on Xcode Cloud (see `docs/xcode-cloud.md`) or a machine with
-  Xcode. Write conservative, iOS 17-stable API code there and get it reviewed.
+Xcode.app is installed but `xcode-select` points at CommandLineTools, so
+prefix toolchain commands with
+`DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
+
+- Gate before any push — full suite on the simulator:
+  `xcodebuild -project Squander.xcodeproj -scheme Squander -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath /tmp/squander-dd CODE_SIGNING_ALLOWED=NO test`
+- Fast loop: `cd SquanderCore && swift test` (needs the DEVELOPER_DIR prefix).
+- Never use legacy `xcodebuild -target` builds: they can't resolve the
+  SquanderCore package and drop a stray `build/` dir.
+- XCUITest gotchas that have bitten here: identifiers on List rows /
+  NavigationLinks don't surface as `app.cells[...]` (use a type-agnostic
+  descendants query); tap tab bars by visible label; `waitForExpectations`
+  is not Swift 6-safe (use `waitForNonExistence(timeout:)`); keypaths inside
+  `#expect` may need explicit closures.
 - Project file: edit `project.yml`, run `xcodegen`, commit both it and the
   regenerated `Squander.xcodeproj`.
 - OpenSpec CLI: `~/.hermes/node/bin/openspec` (`openspec validate <change> --strict`).
