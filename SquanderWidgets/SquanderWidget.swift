@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import WidgetKit
 import SquanderCore
+import os
 
 /// Whole-dollar formatting, mirroring the app's `Formatting.swift` (which
 /// belongs to the app target and is not compiled into the extension).
@@ -39,10 +40,24 @@ struct SquanderWidgetProvider: TimelineProvider {
         completion(Timeline(entries: entries, policy: .atEnd))
     }
 
+    /// One container for the extension process; widget extensions run under
+    /// a tight memory ceiling, so don't rebuild it per timeline reload.
+    private static let sharedContainer: ModelContainer? = {
+        do {
+            return try SquanderContainer.makeContainer()
+        } catch {
+            Logger(subsystem: "dev.jimfrederick.squander.widgets", category: "store")
+                .error("Widget could not open the shared store: \(error, privacy: .public)")
+            return nil
+        }
+    }()
+
     /// Reads today's total and the quick-log presets from the shared store.
-    /// Falls back to an empty entry if the store can't be opened.
+    /// Falls back to an empty entry if the store can't be opened (already
+    /// logged above — an entitlement/App Group misconfiguration would
+    /// otherwise be indistinguishable from "no expenses yet").
     private static func loadEntry(at date: Date) -> SquanderWidgetEntry {
-        guard let container = try? SquanderContainer.makeContainer() else {
+        guard let container = sharedContainer else {
             return SquanderWidgetEntry(date: date, todayTotal: 0, presets: [])
         }
         let context = ModelContext(container)

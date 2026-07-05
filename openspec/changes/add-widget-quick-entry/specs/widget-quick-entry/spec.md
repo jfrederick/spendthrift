@@ -18,7 +18,7 @@ The app SHALL provide Home Screen widgets (small and medium) showing today's who
 - **THEN** the app opens on the entry keypad ready for input
 
 ### Requirement: Quick-log presets
-The medium widget SHALL offer up to four quick-log buttons derived from usage history: the most frequently used descriptions (by mapping use count, ties broken by recency), each paired with that description's most common expense amount (ties broken by most recent). A description SHALL only qualify once it has at least two saved expenses. With no qualifying descriptions, the widget SHALL show the total and an "open app" affordance only.
+The medium widget SHALL offer up to four quick-log buttons derived from usage history: the most frequently used descriptions (by count of currently saved expenses, so deleted expenses stop counting; ties broken by recency), each paired with that description's most common expense amount (ties broken by most recent). A description SHALL only qualify once it has at least two saved expenses. With no qualifying descriptions, the widget SHALL show the total and an "open app" affordance only.
 
 #### Scenario: Presets derived from history
 - **WHEN** "cafe" has 20 expenses, most commonly $6, and "electrolytes" has 5 expenses, most commonly $4
