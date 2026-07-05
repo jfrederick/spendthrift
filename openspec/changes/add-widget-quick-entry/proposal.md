@@ -6,7 +6,7 @@ The fastest capture path still requires launching the app. For a user's handful 
 
 ## What Changes
 
-- New WidgetKit extension target (`SquanderWidgets`) with an interactive Home Screen widget (small and medium) showing today's total and up to four one-tap quick-log buttons, plus Lock Screen accessory widgets showing today's total.
+- New WidgetKit extension target (`SpendthriftWidgets`) with an interactive Home Screen widget (small and medium) showing today's total and up to four one-tap quick-log buttons, plus Lock Screen accessory widgets showing today's total.
 - Quick-log buttons are derived from usage: the most frequently used descriptions paired with each one's most common amount. Tapping logs the expense immediately via an App Intent (no app launch), using the remembered category.
 - New `LogQuickExpenseIntent` App Intent that performs the write in the extension process and reloads widget timelines.
 - The SwiftData store moves to an App Group container (shared between app and widget), with a one-time migration copying the existing store file on first launch of the updated app.
@@ -24,7 +24,7 @@ The fastest capture path still requires launching the app. For a user's handful 
 
 ## Impact
 
-- New target `SquanderWidgets` (WidgetKit + App Intents), shared model code compiled into both targets.
-- App Group entitlement (`group.dev.jimfrederick.squander`) on app and extension — requires signing configuration in App Store Connect/Xcode Cloud.
+- New target `SpendthriftWidgets` (WidgetKit + App Intents), shared model code compiled into both targets.
+- App Group entitlement (`group.dev.jimfrederick.spendthrift`) on app and extension — requires signing configuration in App Store Connect/Xcode Cloud.
 - `project.yml`/Xcode project regenerated; Xcode Cloud docs updated.
-- New pure logic in `SquanderCore` (quick-log preset derivation) with unit tests; store-layer tests for the shared-container setup and intent write path.
+- New pure logic in `SpendthriftCore` (quick-log preset derivation) with unit tests; store-layer tests for the shared-container setup and intent write path.
