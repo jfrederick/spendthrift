@@ -11,16 +11,9 @@ struct SpendthriftApp: App {
         let isUITestMode = arguments.contains("-UITestMode")
         let shouldSeedUITestData = arguments.contains("-UITestSeedData")
 
-        let schema = Schema(versionedSchema: SpendthriftSchemaV1.self)
-        let configuration = ModelConfiguration(isStoredInMemoryOnly: isUITestMode)
-
         let container: ModelContainer
         do {
-            container = try ModelContainer(
-                for: schema,
-                migrationPlan: SpendthriftMigrationPlan.self,
-                configurations: [configuration]
-            )
+            container = try SpendthriftContainer.makeContainer(inMemory: isUITestMode)
         } catch {
             fatalError("Spendthrift failed to create its ModelContainer: \(error)")
         }
@@ -65,11 +58,7 @@ struct SpendthriftApp: App {
         let calendar = Calendar.current
         let now = Date.now
         let yesterday = calendar.date(byAdding: .day, value: -1, to: now) ?? now
-        // Mid-previous-month, so the seed always lands exactly one calendar
-        // month back regardless of today's day-of-month (a plain -1 month
-        // from the 29th-31st can clamp and desync UI test assertions).
-        let currentMonthStart = calendar.dateInterval(of: .month, for: now)?.start ?? now
-        let lastMonth = calendar.date(byAdding: .day, value: -15, to: currentMonthStart) ?? now
+        let lastMonth = calendar.date(byAdding: .month, value: -1, to: now) ?? now
 
         try store.saveExpense(amountDollars: 20, label: "seed today", category: foodCategory, timestamp: now)
         try store.saveExpense(amountDollars: 10, label: "seed yesterday", category: transportCategory, timestamp: yesterday)
