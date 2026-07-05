@@ -1,6 +1,6 @@
 # Tasks: add-spending-insights
 
-## 1. Core aggregation (SquanderCore)
+## 1. Core aggregation (SpendthriftCore)
 
 - [x] 1.1 Implement `TotalsAggregator.periodSeries` (fixed-length windows: last N days/weeks/months including zero periods) — with unit tests incl. time zone and week-start cases
 - [x] 1.2 Implement `CategoryBreakdown.compute` (per-category totals, ranked, percentage shares, omit empty) — with unit tests incl. rounding of shares
@@ -22,4 +22,4 @@
 ## 4. Finalize
 
 - [x] 4.1 Accessibility labels for charts (audio graph descriptors optional) and comparison text
-- [ ] 4.2 Full test pass; openspec validate; update README feature list (SquanderCore suite green locally, validate passing, README updated; app-target build/UI test pass awaits Xcode Cloud)
+- [ ] 4.2 Full test pass; openspec validate; update README feature list (SpendthriftCore suite green locally, validate passing, README updated; app-target build/UI test pass awaits Xcode Cloud)
