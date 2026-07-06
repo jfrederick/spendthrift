@@ -61,6 +61,12 @@ verification is how plausible-but-wrong findings survive.
 5. Commit fixes as a separate "Fix <feature> bugs found in code review"
    commit so the PR shows the review trail; note findings count in PR body.
 
+## Known flake
+
+The first `xcodebuild test` run immediately after `xcodegen` regenerates
+the project has failed transiently twice (stale incremental state); re-run
+once before debugging a red gate.
+
 ## Known refutation patterns (don't re-report)
 
 - "Logic should move to SpendthriftCore" is refuted when it requires

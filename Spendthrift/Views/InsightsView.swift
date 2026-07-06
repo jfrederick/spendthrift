@@ -131,21 +131,39 @@ struct InsightsView: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
+        .onAppear {
+            digestEnabled = DigestPreferences.isEnabled
+        }
         .onChange(of: digestEnabled) { _, isOn in
             guard isOn != DigestPreferences.isEnabled else { return }
             if isOn {
                 Task {
-                    if await DigestScheduler.requestAuthorization() {
-                        DigestPreferences.isEnabled = true
-                        if let store { DigestScheduler.refresh(store: store) }
+                    let granted = await DigestScheduler.requestAuthorization()
+                    // The toggle may have been flipped back off while the
+                    // permission dialog was up — never arm a digest the UI
+                    // shows as off.
+                    if granted && digestEnabled {
+                        applyDigestPreference(true)
                     } else {
                         digestEnabled = false
+                        applyDigestPreference(false)
                     }
                 }
             } else {
-                DigestPreferences.isEnabled = false
-                if let store { DigestScheduler.refresh(store: store) }
+                applyDigestPreference(false)
             }
+        }
+    }
+
+    /// Persist + reschedule as one step so enable/disable can't diverge.
+    private func applyDigestPreference(_ enabled: Bool) {
+        DigestPreferences.isEnabled = enabled
+        if let store {
+            DigestScheduler.refresh(store: store)
+        } else if !enabled {
+            // No store in the environment (e.g. previews): still honor the
+            // opt-out by cancelling the pending notification.
+            DigestScheduler.removePending()
         }
     }
 

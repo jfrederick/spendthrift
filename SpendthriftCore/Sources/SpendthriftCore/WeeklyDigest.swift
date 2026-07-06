@@ -34,16 +34,12 @@ public struct WeeklyDigest: Equatable, Sendable {
         }
 
         let trailing = expenses.filter { $0.timestamp > weekAgo && $0.timestamp <= fireDate }
-        guard !trailing.isEmpty else { return nil }
-
-        var byCategory: [String: Int] = [:]
-        for expense in trailing {
-            byCategory[expense.categoryName, default: 0] += expense.amountDollars
-        }
-        // Ties break by name so the digest is deterministic.
-        guard let top = byCategory.min(by: { ($1.value, $0.key) < ($0.value, $1.key) }) else {
-            return nil
-        }
+        // CategoryBreakdown owns the ranking rule (total descending, ties by
+        // name) so the digest's top category always agrees with Insights.
+        let ranked = CategoryBreakdown.compute(
+            expenses: trailing.map { (amount: $0.amountDollars, category: $0.categoryName) }
+        )
+        guard let top = ranked.first else { return nil }
 
         let total = trailing.reduce(0) { $0 + $1.amountDollars }
         let prior = expenses.filter { $0.timestamp > twoWeeksAgo && $0.timestamp <= weekAgo }
@@ -51,8 +47,8 @@ public struct WeeklyDigest: Equatable, Sendable {
 
         return WeeklyDigest(
             totalDollars: total,
-            topCategoryName: top.key,
-            topCategoryDollars: top.value,
+            topCategoryName: top.category,
+            topCategoryDollars: top.total,
             deltaDollars: delta
         )
     }
@@ -62,15 +58,15 @@ public struct WeeklyDigest: Equatable, Sendable {
     public static let notificationTitle = "Your week in spending"
 
     public static func body(for digest: WeeklyDigest) -> String {
-        let opening = "You spent $\(digest.totalDollars) this week, mostly on \(digest.topCategoryName)"
+        let opening = "You spent \(digest.totalDollars.wholeDollars) this week, mostly on \(digest.topCategoryName)"
         guard let delta = digest.deltaDollars else {
             return opening + "."
         }
         if delta > 0 {
-            return opening + " — up $\(delta) from last week."
+            return opening + " — up \(delta.wholeDollars) from last week."
         }
         if delta < 0 {
-            return opening + " — down $\(-delta) from last week."
+            return opening + " — down \((-delta).wholeDollars) from last week."
         }
         return opening + " — same as last week."
     }

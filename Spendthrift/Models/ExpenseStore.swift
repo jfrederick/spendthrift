@@ -9,6 +9,11 @@ import SpendthriftCore
 final class ExpenseStore {
     let context: ModelContext
 
+    /// Invoked after every expense mutation (save/update/delete/restore) so
+    /// side effects like digest rescheduling can't be forgotten by new write
+    /// paths. Left unset in processes that don't schedule (widget extension).
+    var onExpensesMutated: ((ExpenseStore) -> Void)?
+
     init(context: ModelContext) {
         self.context = context
     }
@@ -148,6 +153,7 @@ final class ExpenseStore {
         context.insert(expense)
         upsertMapping(label: trimmed, category: category, at: timestamp)
         try context.save()
+        onExpensesMutated?(self)
         return expense
     }
 
@@ -182,6 +188,7 @@ final class ExpenseStore {
             upsertMapping(label: trimmed, category: category, at: .now)
         }
         try context.save()
+        onExpensesMutated?(self)
     }
 
     /// Everything needed to undo a delete.
@@ -201,6 +208,7 @@ final class ExpenseStore {
         )
         context.delete(expense)
         try context.save()
+        onExpensesMutated?(self)
         return snapshot
     }
 
@@ -222,6 +230,7 @@ final class ExpenseStore {
         )
         context.insert(expense)
         try context.save()
+        onExpensesMutated?(self)
         return expense
     }
 

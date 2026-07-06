@@ -38,6 +38,7 @@ struct SpendthriftApp: App {
             }
         }
 
+        store.onExpensesMutated = { DigestScheduler.refresh(store: $0) }
         self.store = store
     }
 

@@ -20,7 +20,11 @@ enum DigestScheduler {
         calendar: Calendar = .current
     ) -> (digest: WeeklyDigest, fireDate: Date)? {
         let fireDate = WeeklyDigest.nextFireDate(after: now, calendar: calendar)
-        let items = ((try? store.allExpenses()) ?? []).map { expense in
+        // Only the two comparison weeks matter — fetch that window, not the
+        // whole table, since this runs on the sub-5-second capture path.
+        guard let windowStart = calendar.date(byAdding: .day, value: -14, to: fireDate) else { return nil }
+        let fetched = (try? store.expenses(in: DateInterval(start: windowStart, end: fireDate))) ?? []
+        let items = fetched.map { expense in
             (
                 amountDollars: expense.amountDollars,
                 categoryName: expense.category?.name ?? CategoryRules.fallbackCategoryName,
@@ -33,12 +37,18 @@ enum DigestScheduler {
         return (digest, fireDate)
     }
 
+    /// Cancels the pending digest without needing a store (e.g. disabling
+    /// the toggle when no store is in the environment).
+    static func removePending() {
+        UNUserNotificationCenter.current()
+            .removePendingNotificationRequests(withIdentifiers: [requestIdentifier])
+    }
+
     /// Recomputes and replaces the pending digest; removes it when the
     /// feature is off or there is nothing to say (design D5).
     static func refresh(store: ExpenseStore, now: Date = .now) {
-        let center = UNUserNotificationCenter.current()
         guard DigestPreferences.isEnabled, let upcoming = upcomingDigest(store: store, now: now) else {
-            center.removePendingNotificationRequests(withIdentifiers: [requestIdentifier])
+            removePending()
             return
         }
 
@@ -47,12 +57,16 @@ enum DigestScheduler {
         content.body = WeeklyDigest.body(for: upcoming.digest)
         content.sound = .default
 
+        // .timeZone pins delivery to the instant the digest window was
+        // computed against; without it a time-zone change would re-interpret
+        // the wall-clock components and drift away from the window end.
         let components = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute, .second],
+            [.year, .month, .day, .hour, .minute, .second, .timeZone],
             from: upcoming.fireDate
         )
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-        center.add(UNNotificationRequest(identifier: requestIdentifier, content: content, trigger: trigger))
+        UNUserNotificationCenter.current()
+            .add(UNNotificationRequest(identifier: requestIdentifier, content: content, trigger: trigger))
     }
 
     static func requestAuthorization() async -> Bool {

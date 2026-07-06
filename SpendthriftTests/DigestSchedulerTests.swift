@@ -59,6 +59,23 @@ struct DigestSchedulerTests {
         #expect(DigestScheduler.upcomingDigest(store: store, now: Self.wednesday, calendar: Self.utc) == nil)
     }
 
+    @Test func everyMutationFiresTheStoreHook() throws {
+        let (_, store) = try TestSupport.makeStore()
+        try store.seedIfNeeded()
+        var mutations = 0
+        store.onExpensesMutated = { _ in mutations += 1 }
+        let food = try #require(try store.category(named: "Food & Drink"))
+
+        let expense = try store.saveExpense(amountDollars: 10, label: "cafe", category: food, timestamp: Self.wednesday)
+        try store.updateExpense(expense, amountDollars: 12, label: "cafe", category: food)
+        let snapshot = try store.deleteExpense(expense)
+        try store.restoreExpense(snapshot)
+
+        // save + update + delete + restore: the digest can never go stale
+        // because a write path forgot to reschedule (review finding, PR #9).
+        #expect(mutations == 4)
+    }
+
     @Test func preferenceDefaultsToOff() throws {
         let suite = "digest-tests-\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suite))

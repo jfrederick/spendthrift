@@ -20,4 +20,4 @@
 
 - [x] 4.1 Full simulator suite green
 - [x] 4.2 `openspec validate add-weekly-digest --strict` passes
-- [ ] 4.3 Execution-verified multi-agent review, fix findings, PR, merge, cleanup
+- [x] 4.3 Execution-verified multi-agent review, fix findings, PR, merge, cleanup

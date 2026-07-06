@@ -1,4 +1,5 @@
 import SwiftUI
+import SpendthriftCore
 import SwiftData
 
 /// Drill-in list of expenses for a given period, grouped by calendar day in
