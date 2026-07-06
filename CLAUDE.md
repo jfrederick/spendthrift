@@ -32,9 +32,13 @@ prefix toolchain commands with
   SpendthriftCore package and drop a stray `build/` dir.
 - XCUITest gotchas that have bitten here: identifiers on List rows /
   NavigationLinks don't surface as `app.cells[...]` (use a type-agnostic
-  descendants query); tap tab bars by visible label; `waitForExpectations`
-  is not Swift 6-safe (use `waitForNonExistence(timeout:)`); keypaths inside
-  `#expect` may need explicit closures.
+  descendants query); the root tab bar is custom (not `app.tabBars`) — tap
+  tabs via `app.buttons["tab-entry"/"tab-totals"]`; both pager pages stay
+  mounted, so element identifiers/labels must be unique across Entry and
+  Totals (`accessibilityHidden` does NOT hide them from XCUITest);
+  `waitForExpectations` is not Swift 6-safe (use
+  `waitForNonExistence(timeout:)`); keypaths inside `#expect` may need
+  explicit closures.
 - Project file: edit `project.yml`, run `xcodegen`, commit both it and the
   regenerated `Spendthrift.xcodeproj`.
 - OpenSpec CLI: `~/.hermes/node/bin/openspec` (`openspec validate <change> --strict`).
