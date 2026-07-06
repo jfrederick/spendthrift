@@ -51,3 +51,12 @@ prefix toolchain commands with
   the mapping for future expenses only.
 - Timestamps: stored as UTC instants, all grouping/display via the device's
   `Calendar.current` (locale-aware week start).
+
+## Recurring dev-loop routine
+
+A scheduled routine periodically ideates new features/improvements, gets
+sign-off, then plans/builds/tests/reviews/PRs/merges them (one git worktree +
+branch per feature, removed after merge). Twice a week it runs a
+technical-maintenance research pass instead of ideation. `.claude/ROUTINE_STATE.md`
+(present on the routine's working branch, not necessarily on `main`) carries
+status/history between runs — read it first if present.
