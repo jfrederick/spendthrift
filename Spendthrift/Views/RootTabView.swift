@@ -27,8 +27,10 @@ struct RootTabView: View {
                 saveConfirmationOverlay
             }
         }
-        // Keep the tab bar pinned under the keyboard like the system one.
-        .ignoresSafeArea(.keyboard, edges: .bottom)
+        // No .ignoresSafeArea(.keyboard) here: it would strip keyboard
+        // avoidance from every screen in the pager (the edit form's fields
+        // would stay covered). The tab bar riding above the keyboard is the
+        // lesser evil — it stays reachable.
         // spendthrift://entry — the widget's non-button tap target opens the
         // app straight onto the keypad (spec: widget-quick-entry).
         .onOpenURL { url in
@@ -58,13 +60,15 @@ struct RootTabView: View {
     private func handleExpenseSaved() {
         withAnimation(.easeInOut(duration: 0.3)) {
             selectedTab = .totals
+            showSaveConfirmation = true
         }
-        showSaveConfirmation = true
         confirmationGeneration += 1
         let generation = confirmationGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             if confirmationGeneration == generation {
-                showSaveConfirmation = false
+                withAnimation {
+                    showSaveConfirmation = false
+                }
             }
         }
     }

@@ -43,32 +43,34 @@ struct ExpenseListView: View {
 
     private var filteredExpenses: [Expense] {
         guard let filterCategoryName else { return allExpenses }
-        return allExpenses.filter { $0.category?.name == filterCategoryName }
+        let key = normalize(filterCategoryName)
+        return allExpenses.filter { normalize($0.category?.name ?? "") == key }
     }
 
-    /// Category names present in this period's expenses, alphabetical.
+    /// Category names present in this period's expenses (plus the active
+    /// filter, so an emptied selection stays visible and clearable).
     private var availableCategoryNames: [String] {
-        let present = Set(allExpenses.compactMap { $0.category?.name })
+        var present = Set(allExpenses.compactMap { $0.category?.name })
+        if let filterCategoryName {
+            present.insert(filterCategoryName)
+        }
         return present.sorted()
     }
 
-    private var sections: [DaySection] {
-        let grouped = Dictionary(grouping: filteredExpenses) { calendar.startOfDay(for: $0.timestamp) }
+    private func daySections(of expenses: [Expense]) -> [DaySection] {
+        let grouped = Dictionary(grouping: expenses) { calendar.startOfDay(for: $0.timestamp) }
         return grouped.keys.sorted(by: >).map { day in
             DaySection(day: day, expenses: grouped[day]?.sorted { $0.timestamp > $1.timestamp } ?? [])
         }
     }
 
     var body: some View {
-        let indices = indexByID
+        // Filter, group, and index one snapshot per render instead of
+        // re-deriving filteredExpenses in each computed property.
+        let filtered = filteredExpenses
+        let sections = daySections(of: filtered)
+        let indices = indexByID(of: filtered)
         return ZStack(alignment: .bottom) {
-            if sections.isEmpty, filterCategoryName != nil {
-                Text("No expenses in this category")
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .accessibilityIdentifier("filtered-empty")
-            }
-
             List {
                 ForEach(sections) { section in
                     Section(header: Text(dayHeaderText(for: section.day))) {
@@ -91,6 +93,15 @@ struct ExpenseListView: View {
                 }
             }
             .listStyle(.plain)
+
+            // Above the List: an empty plain List still paints an opaque
+            // background, so anything layered beneath it stays invisible.
+            if sections.isEmpty, filterCategoryName != nil {
+                Text("No expenses in this category")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityIdentifier("filtered-empty")
+            }
 
             if showUndoBar {
                 undoBar
@@ -122,10 +133,11 @@ struct ExpenseListView: View {
         .accessibilityLabel("Filter by category")
     }
 
-    /// One O(n) pass instead of an O(n) scan per row; -1 (never a real row)
-    /// for anything transiently absent so identifiers can't collide.
-    private var indexByID: [PersistentIdentifier: Int] {
-        Dictionary(uniqueKeysWithValues: filteredExpenses.enumerated().map { ($1.persistentModelID, $0) })
+    /// Row indices within the currently displayed (filtered) list, one O(n)
+    /// pass instead of an O(n) scan per row; -1 (never a real row) for
+    /// anything transiently absent so identifiers can't collide.
+    private func indexByID(of expenses: [Expense]) -> [PersistentIdentifier: Int] {
+        Dictionary(uniqueKeysWithValues: expenses.enumerated().map { ($1.persistentModelID, $0) })
     }
 
     private func globalIndex(of expense: Expense, in indices: [PersistentIdentifier: Int]) -> Int {

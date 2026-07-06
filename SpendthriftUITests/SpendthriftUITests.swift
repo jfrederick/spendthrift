@@ -262,6 +262,18 @@ final class SpendthriftUITests: XCTestCase {
         XCTAssertTrue(filteredRow.label.contains("transport"))
         XCTAssertTrue(element(app, id: "expense-row-1").waitForNonExistence(timeout: 3))
 
+        // Deleting the only matching expense shows the filtered empty state
+        // rather than falling back to unfiltered results.
+        filteredRow.swipeLeft()
+        let deleteButton = app.buttons["Delete"]
+        XCTAssertTrue(deleteButton.waitForExistence(timeout: 3))
+        deleteButton.tap()
+        XCTAssertTrue(element(app, id: "filtered-empty").waitForExistence(timeout: 3))
+
+        // Undo restores the expense into the still-active filter.
+        app.buttons["undo-button"].tap()
+        XCTAssertTrue(element(app, id: "expense-row-0").waitForExistence(timeout: 3))
+
         // "All Categories" restores the full list.
         element(app, id: "category-filter-button").tap()
         app.buttons["All Categories"].tap()

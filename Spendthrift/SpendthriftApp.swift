@@ -72,8 +72,10 @@ struct SpendthriftApp: App {
 
         try store.saveExpense(amountDollars: 20, label: "seed today", category: foodCategory, timestamp: now)
         // A second today category so the list's category filter is testable;
-        // 1s earlier keeps "seed today" the newest (deterministic row order).
-        try store.saveExpense(amountDollars: 5, label: "seed today transport", category: transportCategory, timestamp: now.addingTimeInterval(-1))
+        // slightly earlier keeps "seed today" the newest, clamped to the
+        // start of day so a just-after-midnight launch stays "today".
+        let earlierToday = max(now.addingTimeInterval(-1), calendar.startOfDay(for: now))
+        try store.saveExpense(amountDollars: 5, label: "seed today transport", category: transportCategory, timestamp: earlierToday)
         try store.saveExpense(amountDollars: 10, label: "seed yesterday", category: transportCategory, timestamp: yesterday)
         try store.saveExpense(amountDollars: 30, label: "seed last month", category: foodCategory, timestamp: lastMonth)
     }

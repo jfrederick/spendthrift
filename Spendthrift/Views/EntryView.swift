@@ -90,16 +90,7 @@ struct EntryView: View {
             Button {
                 advanceToDescription()
             } label: {
-                // Styling lives on the label so the whole rounded rectangle
-                // is the tap target, not just the centered text.
-                Text("Next")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(amountState.canProceed ? Color.accentColor : Color.gray.opacity(0.3))
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .contentShape(RoundedRectangle(cornerRadius: 12))
+                primaryActionLabel("Next", enabled: amountState.canProceed)
             }
             .disabled(!amountState.canProceed)
             .accessibilityIdentifier("next-button")
@@ -148,14 +139,7 @@ struct EntryView: View {
             Button {
                 save()
             } label: {
-                Text("Save")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(canSave ? Color.accentColor : Color.gray.opacity(0.3))
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .contentShape(RoundedRectangle(cornerRadius: 12))
+                primaryActionLabel("Save", enabled: canSave)
             }
             .disabled(!canSave)
             .accessibilityIdentifier("save-button")
@@ -213,6 +197,19 @@ struct EntryView: View {
         .background(.background, in: RoundedRectangle(cornerRadius: 8))
         .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.quaternary))
         .accessibilityIdentifier("category-change-button")
+    }
+
+    /// Shared full-width primary action label; styling lives on the label
+    /// (not the Button) so the whole rounded rectangle is the tap target.
+    private func primaryActionLabel(_ title: String, enabled: Bool) -> some View {
+        Text(title)
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .frame(height: 50)
+            .background(enabled ? Color.accentColor : Color.gray.opacity(0.3))
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .contentShape(RoundedRectangle(cornerRadius: 12))
     }
 
     private var canSave: Bool {
