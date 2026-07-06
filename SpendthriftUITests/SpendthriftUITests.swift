@@ -78,7 +78,11 @@ final class SpendthriftUITests: XCTestCase {
         let confirmation = element(app, id: "save-confirmation")
         XCTAssertTrue(confirmation.waitForExistence(timeout: 3))
 
-        // Keypad resets to empty amount step.
+        // Saving slides to the Totals screen.
+        XCTAssertTrue(element(app, id: "totals-row-0").waitForExistence(timeout: 5))
+
+        // Back on Entry, the keypad has reset to an empty amount step.
+        app.buttons["tab-entry"].tap()
         XCTAssertTrue(app.staticTexts["amount-display"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.staticTexts["amount-display"].label.contains("0"))
         XCTAssertFalse(app.buttons["next-button"].isEnabled)
@@ -103,6 +107,10 @@ final class SpendthriftUITests: XCTestCase {
 
         app.buttons["save-button"].tap()
         XCTAssertTrue(element(app, id: "save-confirmation").waitForExistence(timeout: 3))
+
+        // Saving lands on Totals; return to Entry for the second expense.
+        app.buttons["tab-entry"].tap()
+        XCTAssertTrue(app.buttons["keypad-5"].waitForExistence(timeout: 3))
 
         // Second entry with the same description should skip the category prompt.
         app.buttons["keypad-5"].tap()
@@ -167,11 +175,10 @@ final class SpendthriftUITests: XCTestCase {
         saveButton.tap()
         XCTAssertTrue(element(app, id: "save-confirmation").waitForExistence(timeout: 3))
 
-        app.tabBars.buttons["Totals"].tap()
-
+        // Saving navigates to Totals automatically; seeded $25 today + $15.
         let todayRow = element(app, id: "totals-row-0")
         XCTAssertTrue(todayRow.waitForExistence(timeout: 5))
-        XCTAssertTrue(todayRow.label.contains("35") || todayRow.staticTexts.matching(NSPredicate(format: "label CONTAINS '35'")).count > 0)
+        XCTAssertTrue(todayRow.label.contains("40") || todayRow.staticTexts.matching(NSPredicate(format: "label CONTAINS '40'")).count > 0)
     }
 
     // MARK: - Edit updates totals
@@ -179,7 +186,7 @@ final class SpendthriftUITests: XCTestCase {
     func test_editExpense_updatesTotals() {
         let app = launchedApp(seedData: true)
 
-        app.tabBars.buttons["Totals"].tap()
+        app.buttons["tab-totals"].tap()
 
         let todayRow = element(app, id: "totals-row-0")
         XCTAssertTrue(todayRow.waitForExistence(timeout: 5))
@@ -193,14 +200,14 @@ final class SpendthriftUITests: XCTestCase {
         XCTAssertTrue(editSaveButton.waitForExistence(timeout: 5))
 
         // Add a digit to the amount via the edit keypad.
-        app.buttons["keypad-1"].tap()
+        app.buttons["edit-keypad-1"].tap()
         XCTAssertTrue(editSaveButton.isEnabled)
         editSaveButton.tap()
 
         // Back on the drill-in list, then back to Totals; total should reflect the edit.
         app.navigationBars.buttons.element(boundBy: 0).tap()
-        app.tabBars.buttons["Entry"].tap()
-        app.tabBars.buttons["Totals"].tap()
+        app.buttons["tab-entry"].tap()
+        app.buttons["tab-totals"].tap()
 
         XCTAssertTrue(element(app, id: "totals-row-0").waitForExistence(timeout: 5))
     }
@@ -210,7 +217,7 @@ final class SpendthriftUITests: XCTestCase {
     func test_swipeToDelete_withUndo() {
         let app = launchedApp(seedData: true)
 
-        app.tabBars.buttons["Totals"].tap()
+        app.buttons["tab-totals"].tap()
 
         let todayRow = element(app, id: "totals-row-0")
         XCTAssertTrue(todayRow.waitForExistence(timeout: 5))
@@ -231,12 +238,42 @@ final class SpendthriftUITests: XCTestCase {
         XCTAssertTrue(element(app, id: "expense-row-0").waitForExistence(timeout: 5))
     }
 
+    // MARK: - Category filter on the period expense list
+
+    func test_expenseList_categoryFilter() {
+        let app = launchedApp(seedData: true)
+
+        app.buttons["tab-totals"].tap()
+
+        let todayRow = element(app, id: "totals-row-0")
+        XCTAssertTrue(todayRow.waitForExistence(timeout: 5))
+        todayRow.tap()
+
+        // Both of today's seeded expenses are listed unfiltered.
+        XCTAssertTrue(element(app, id: "expense-row-0").waitForExistence(timeout: 5))
+        XCTAssertTrue(element(app, id: "expense-row-1").exists)
+
+        // Filter to Transport: only the $5 transport expense remains.
+        element(app, id: "category-filter-button").tap()
+        app.buttons["Transport"].tap()
+
+        let filteredRow = element(app, id: "expense-row-0")
+        XCTAssertTrue(filteredRow.waitForExistence(timeout: 3))
+        XCTAssertTrue(filteredRow.label.contains("transport"))
+        XCTAssertTrue(element(app, id: "expense-row-1").waitForNonExistence(timeout: 3))
+
+        // "All Categories" restores the full list.
+        element(app, id: "category-filter-button").tap()
+        app.buttons["All Categories"].tap()
+        XCTAssertTrue(element(app, id: "expense-row-1").waitForExistence(timeout: 3))
+    }
+
     // MARK: - Trend chart on Totals tab
 
     func test_totalsTab_showsTrendChart_andFollowsGranularity() {
         let app = launchedApp(seedData: true)
 
-        app.tabBars.buttons["Totals"].tap()
+        app.buttons["tab-totals"].tap()
 
         let chart = element(app, id: "trend-chart")
         XCTAssertTrue(chart.waitForExistence(timeout: 5))
@@ -254,7 +291,7 @@ final class SpendthriftUITests: XCTestCase {
     func test_insights_showsWeeklyDigestToggle() {
         let app = launchedApp(seedData: true)
 
-        app.tabBars.buttons["Totals"].tap()
+        app.buttons["tab-totals"].tap()
 
         let insightsButton = element(app, id: "insights-button")
         XCTAssertTrue(insightsButton.waitForExistence(timeout: 5))
@@ -268,7 +305,7 @@ final class SpendthriftUITests: XCTestCase {
     func test_insights_opensShowingCurrentMonth() {
         let app = launchedApp(seedData: true)
 
-        app.tabBars.buttons["Totals"].tap()
+        app.buttons["tab-totals"].tap()
 
         let insightsButton = element(app, id: "insights-button")
         XCTAssertTrue(insightsButton.waitForExistence(timeout: 5))
@@ -288,7 +325,7 @@ final class SpendthriftUITests: XCTestCase {
     func test_insights_stepBackShowsPreviousMonthData() {
         let app = launchedApp(seedData: true)
 
-        app.tabBars.buttons["Totals"].tap()
+        app.buttons["tab-totals"].tap()
 
         let insightsButton = element(app, id: "insights-button")
         XCTAssertTrue(insightsButton.waitForExistence(timeout: 5))

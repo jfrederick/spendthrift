@@ -27,7 +27,7 @@ struct ExpenseEditView: View {
         Form {
             Section("Amount") {
                 AmountDisplayView(amountDollars: amountState.amount)
-                KeypadView(state: $amountState)
+                KeypadView(state: $amountState, identifierPrefix: "edit-keypad")
                     .padding(.vertical, 8)
             }
 

@@ -12,6 +12,10 @@ struct ExpenseListView: View {
 
     @Query private var allExpenses: [Expense]
 
+    /// Category name the list is narrowed to; nil shows all categories
+    /// (expense-management spec: filtering the expense list by category).
+    @State private var filterCategoryName: String?
+
     @State private var pendingUndoSnapshot: ExpenseStore.DeletedExpenseSnapshot?
     @State private var showUndoBar = false
     /// Each delete bumps this; a dismiss timer only clears state if no newer
@@ -37,8 +41,19 @@ struct ExpenseListView: View {
         let expenses: [Expense]
     }
 
+    private var filteredExpenses: [Expense] {
+        guard let filterCategoryName else { return allExpenses }
+        return allExpenses.filter { $0.category?.name == filterCategoryName }
+    }
+
+    /// Category names present in this period's expenses, alphabetical.
+    private var availableCategoryNames: [String] {
+        let present = Set(allExpenses.compactMap { $0.category?.name })
+        return present.sorted()
+    }
+
     private var sections: [DaySection] {
-        let grouped = Dictionary(grouping: allExpenses) { calendar.startOfDay(for: $0.timestamp) }
+        let grouped = Dictionary(grouping: filteredExpenses) { calendar.startOfDay(for: $0.timestamp) }
         return grouped.keys.sorted(by: >).map { day in
             DaySection(day: day, expenses: grouped[day]?.sorted { $0.timestamp > $1.timestamp } ?? [])
         }
@@ -47,6 +62,13 @@ struct ExpenseListView: View {
     var body: some View {
         let indices = indexByID
         return ZStack(alignment: .bottom) {
+            if sections.isEmpty, filterCategoryName != nil {
+                Text("No expenses in this category")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityIdentifier("filtered-empty")
+            }
+
             List {
                 ForEach(sections) { section in
                     Section(header: Text(dayHeaderText(for: section.day))) {
@@ -76,12 +98,34 @@ struct ExpenseListView: View {
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                categoryFilterMenu
+            }
+        }
+    }
+
+    private var categoryFilterMenu: some View {
+        Menu {
+            Picker("Category", selection: $filterCategoryName) {
+                Text("All Categories").tag(String?.none)
+                ForEach(availableCategoryNames, id: \.self) { name in
+                    Text(name).tag(String?.some(name))
+                }
+            }
+        } label: {
+            Image(systemName: filterCategoryName == nil
+                ? "line.3.horizontal.decrease.circle"
+                : "line.3.horizontal.decrease.circle.fill")
+        }
+        .accessibilityIdentifier("category-filter-button")
+        .accessibilityLabel("Filter by category")
     }
 
     /// One O(n) pass instead of an O(n) scan per row; -1 (never a real row)
     /// for anything transiently absent so identifiers can't collide.
     private var indexByID: [PersistentIdentifier: Int] {
-        Dictionary(uniqueKeysWithValues: allExpenses.enumerated().map { ($1.persistentModelID, $0) })
+        Dictionary(uniqueKeysWithValues: filteredExpenses.enumerated().map { ($1.persistentModelID, $0) })
     }
 
     private func globalIndex(of expense: Expense, in indices: [PersistentIdentifier: Int]) -> Int {

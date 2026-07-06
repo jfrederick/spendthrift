@@ -4,6 +4,10 @@ import SpendthriftCore
 /// Two-step single-screen expense capture (design D4): amount step, then
 /// description+category step. No NavigationStack push between the steps.
 struct EntryView: View {
+    /// Called after a successful save; the root uses it to slide to Totals
+    /// and show the transient confirmation (spec: saving an expense).
+    var onSaved: () -> Void = {}
+
     @Environment(\.expenseStore) private var store
     @Environment(\.scenePhase) private var scenePhase
 
@@ -23,7 +27,6 @@ struct EntryView: View {
     /// manual pick only survives as long as the description stays the same.
     @State private var pickedForKey: String?
     @State private var showCategoryPicker = false
-    @State private var showConfirmation = false
     @State private var backgroundedAt: Date?
     /// Mapping table snapshot, fetched once per description step (not per
     /// keystroke) and refreshed after each save.
@@ -34,27 +37,21 @@ struct EntryView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                VStack(spacing: 24) {
-                    AmountDisplayView(amountDollars: amountState.amount)
-                        .padding(.top, 32)
+            VStack(spacing: 24) {
+                AmountDisplayView(amountDollars: amountState.amount)
+                    .padding(.top, 32)
 
-                    if step == .description {
-                        descriptionSection
-                    }
-
-                    Spacer()
-
-                    if step == .amount {
-                        amountStepControls
-                    }
+                if step == .description {
+                    descriptionSection
                 }
-                .padding()
 
-                if showConfirmation {
-                    confirmationOverlay
+                Spacer()
+
+                if step == .amount {
+                    amountStepControls
                 }
             }
+            .padding()
             .navigationTitle("New Expense")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -90,15 +87,20 @@ struct EntryView: View {
         VStack(spacing: 20) {
             KeypadView(state: $amountState)
 
-            Button("Next") {
+            Button {
                 advanceToDescription()
+            } label: {
+                // Styling lives on the label so the whole rounded rectangle
+                // is the tap target, not just the centered text.
+                Text("Next")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(amountState.canProceed ? Color.accentColor : Color.gray.opacity(0.3))
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .contentShape(RoundedRectangle(cornerRadius: 12))
             }
-            .font(.headline)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(amountState.canProceed ? Color.accentColor : Color.gray.opacity(0.3))
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
             .disabled(!amountState.canProceed)
             .accessibilityIdentifier("next-button")
         }
@@ -143,15 +145,18 @@ struct EntryView: View {
                 categoryConfirmationArea
             }
 
-            Button("Save") {
+            Button {
                 save()
+            } label: {
+                Text("Save")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(canSave ? Color.accentColor : Color.gray.opacity(0.3))
+                    .foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .contentShape(RoundedRectangle(cornerRadius: 12))
             }
-            .font(.headline)
-            .frame(maxWidth: .infinity)
-            .frame(height: 50)
-            .background(canSave ? Color.accentColor : Color.gray.opacity(0.3))
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
             .disabled(!canSave)
             .accessibilityIdentifier("save-button")
         }
@@ -181,24 +186,33 @@ struct EntryView: View {
     }
 
     private var categoryConfirmationArea: some View {
-        HStack {
-            Label(
-                selectedCategory?.name ?? suggestedCategoryName,
-                systemImage: selectedCategory?.iconName ?? "tag.fill"
-            )
-            .foregroundStyle(CategoryColor.color(named: selectedCategory?.colorName ?? "gray"))
-            .accessibilityIdentifier("category-chip")
-            .accessibilityLabel("Category \(selectedCategory?.name ?? suggestedCategoryName)")
+        // The whole area is one tap target that opens the picker; "Change" is
+        // only the affordance. Background matches the app background (spec:
+        // category suggestion for new descriptions).
+        Button {
+            showCategoryPicker = true
+        } label: {
+            HStack {
+                Label(
+                    selectedCategory?.name ?? suggestedCategoryName,
+                    systemImage: selectedCategory?.iconName ?? "tag.fill"
+                )
+                .foregroundStyle(CategoryColor.color(named: selectedCategory?.colorName ?? "gray"))
+                .accessibilityIdentifier("category-chip")
+                .accessibilityLabel("Category \(selectedCategory?.name ?? suggestedCategoryName)")
 
-            Spacer()
+                Spacer()
 
-            Button("Change") {
-                showCategoryPicker = true
+                Text("Change")
+                    .foregroundStyle(.tint)
             }
-            .accessibilityIdentifier("category-change-button")
+            .padding()
+            .contentShape(RoundedRectangle(cornerRadius: 8))
         }
-        .padding()
-        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+        .buttonStyle(.plain)
+        .background(.background, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(.quaternary))
+        .accessibilityIdentifier("category-change-button")
     }
 
     private var canSave: Bool {
@@ -297,7 +311,7 @@ struct EntryView: View {
         }
 
         resetToEmptyAmountStep()
-        showSaveConfirmation()
+        onSaved()
     }
 
     private func resetToEmptyAmountStep() {
@@ -309,29 +323,6 @@ struct EntryView: View {
         selectedCategory = nil
         suggestedCategoryName = CategoryRules.fallbackCategoryName
         pickedForKey = nil
-    }
-
-    private func showSaveConfirmation() {
-        showConfirmation = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            showConfirmation = false
-        }
-    }
-
-    private var confirmationOverlay: some View {
-        VStack {
-            Spacer()
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 48))
-                .foregroundStyle(.green)
-                .padding(24)
-                .background(.thinMaterial, in: Circle())
-                .accessibilityIdentifier("save-confirmation")
-                .accessibilityLabel("Expense saved")
-            Spacer()
-        }
-        .transition(.opacity)
-        .allowsHitTesting(false)
     }
 
     // MARK: - Backgrounding (spec: 5-minute in-progress-entry expiry)
