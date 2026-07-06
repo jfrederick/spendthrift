@@ -1,4 +1,5 @@
 import SwiftUI
+import SpendthriftCore
 
 /// Large whole-dollar amount display shared by entry and edit screens.
 /// Shows a dimmed "$0" in the empty state (spec: "amount display shows an

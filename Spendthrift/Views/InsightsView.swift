@@ -8,6 +8,8 @@ import SpendthriftCore
 /// stepping back through history (never past the current month). All
 /// aggregation math lives in SpendthriftCore; this view only formats it.
 struct InsightsView: View {
+    @Environment(\.expenseStore) private var store
+
     @Query(sort: \Expense.timestamp, order: .reverse)
     private var expenses: [Expense]
 
@@ -16,6 +18,8 @@ struct InsightsView: View {
 
     /// Start of the month being shown.
     @State private var monthStart: Date
+
+    @State private var digestEnabled = DigestPreferences.isEnabled
 
     init() {
         let start = Calendar.current.dateInterval(of: .month, for: .now)?.start ?? .now
@@ -108,9 +112,59 @@ struct InsightsView: View {
                 }
                 .listStyle(.plain)
             }
+
+            digestFooter
         }
         .navigationTitle("Insights")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    /// Opt-in for the Sunday-evening summary notification. Enabling asks
+    /// for notification permission; denial flips the toggle back off.
+    private var digestFooter: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Toggle("Weekly digest", isOn: $digestEnabled)
+                .accessibilityIdentifier("insights-digest-toggle")
+            Text("A Sunday 6 PM summary of your week.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .onAppear {
+            digestEnabled = DigestPreferences.isEnabled
+        }
+        .onChange(of: digestEnabled) { _, isOn in
+            guard isOn != DigestPreferences.isEnabled else { return }
+            if isOn {
+                Task {
+                    let granted = await DigestScheduler.requestAuthorization()
+                    // The toggle may have been flipped back off while the
+                    // permission dialog was up — never arm a digest the UI
+                    // shows as off.
+                    if granted && digestEnabled {
+                        applyDigestPreference(true)
+                    } else {
+                        digestEnabled = false
+                        applyDigestPreference(false)
+                    }
+                }
+            } else {
+                applyDigestPreference(false)
+            }
+        }
+    }
+
+    /// Persist + reschedule as one step so enable/disable can't diverge.
+    private func applyDigestPreference(_ enabled: Bool) {
+        DigestPreferences.isEnabled = enabled
+        if let store {
+            DigestScheduler.refresh(store: store)
+        } else if !enabled {
+            // No store in the environment (e.g. previews): still honor the
+            // opt-out by cancelling the pending notification.
+            DigestScheduler.removePending()
+        }
     }
 
     // MARK: - Pieces

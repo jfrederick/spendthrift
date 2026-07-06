@@ -3,6 +3,8 @@ import SwiftData
 
 @main
 struct SpendthriftApp: App {
+    @Environment(\.scenePhase) private var scenePhase
+
     let modelContainer: ModelContainer
     let store: ExpenseStore
 
@@ -36,6 +38,7 @@ struct SpendthriftApp: App {
             }
         }
 
+        store.onExpensesMutated = { DigestScheduler.refresh(store: $0) }
         self.store = store
     }
 
@@ -45,6 +48,13 @@ struct SpendthriftApp: App {
                 .environment(\.expenseStore, store)
         }
         .modelContainer(modelContainer)
+        .onChange(of: scenePhase) { _, phase in
+            // Foreground is a "fresh data" moment: widget-extension writes
+            // since the last launch get folded into the pending digest here.
+            if phase == .active {
+                DigestScheduler.refresh(store: store)
+            }
+        }
     }
 
     /// Inserts a small, fixed dataset (today/yesterday/last month) so UI

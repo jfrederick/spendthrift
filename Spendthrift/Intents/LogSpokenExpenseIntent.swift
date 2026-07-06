@@ -27,6 +27,7 @@ struct LogSpokenExpenseIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let container = try SpendthriftContainer.makeContainer()
         let store = ExpenseStore(context: container.mainContext)
+        store.onExpensesMutated = { DigestScheduler.refresh(store: $0) }
         try store.seedIfNeeded()
 
         switch try SpokenExpenseLogger.log(utterance: utterance, store: store) {

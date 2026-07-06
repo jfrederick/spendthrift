@@ -1,12 +1,7 @@
 import Foundation
 
-/// Shared display formatting (design D3: whole-dollar currency, zero
-/// fraction digits, everywhere).
-extension Int {
-    var wholeDollars: String {
-        formatted(.currency(code: "USD").precision(.fractionLength(0)))
-    }
-}
+// Int.wholeDollars moved to SpendthriftCore (DollarFormatting.swift) so the
+// digest notification copy shares the exact formatter the views use.
 
 /// Shared "Today"/"Yesterday"/date day label used by the totals list and the
 /// drill-in expense list.
