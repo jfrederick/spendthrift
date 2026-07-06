@@ -12,6 +12,10 @@ struct ExpenseListView: View {
 
     @Query private var allExpenses: [Expense]
 
+    /// Category name the list is narrowed to; nil shows all categories
+    /// (expense-management spec: filtering the expense list by category).
+    @State private var filterCategoryName: String?
+
     @State private var pendingUndoSnapshot: ExpenseStore.DeletedExpenseSnapshot?
     @State private var showUndoBar = false
     /// Each delete bumps this; a dismiss timer only clears state if no newer
@@ -37,15 +41,35 @@ struct ExpenseListView: View {
         let expenses: [Expense]
     }
 
-    private var sections: [DaySection] {
-        let grouped = Dictionary(grouping: allExpenses) { calendar.startOfDay(for: $0.timestamp) }
+    private var filteredExpenses: [Expense] {
+        guard let filterCategoryName else { return allExpenses }
+        let key = normalize(filterCategoryName)
+        return allExpenses.filter { normalize($0.category?.name ?? "") == key }
+    }
+
+    /// Category names present in this period's expenses (plus the active
+    /// filter, so an emptied selection stays visible and clearable).
+    private var availableCategoryNames: [String] {
+        var present = Set(allExpenses.compactMap { $0.category?.name })
+        if let filterCategoryName {
+            present.insert(filterCategoryName)
+        }
+        return present.sorted()
+    }
+
+    private func daySections(of expenses: [Expense]) -> [DaySection] {
+        let grouped = Dictionary(grouping: expenses) { calendar.startOfDay(for: $0.timestamp) }
         return grouped.keys.sorted(by: >).map { day in
             DaySection(day: day, expenses: grouped[day]?.sorted { $0.timestamp > $1.timestamp } ?? [])
         }
     }
 
     var body: some View {
-        let indices = indexByID
+        // Filter, group, and index one snapshot per render instead of
+        // re-deriving filteredExpenses in each computed property.
+        let filtered = filteredExpenses
+        let sections = daySections(of: filtered)
+        let indices = indexByID(of: filtered)
         return ZStack(alignment: .bottom) {
             List {
                 ForEach(sections) { section in
@@ -70,18 +94,50 @@ struct ExpenseListView: View {
             }
             .listStyle(.plain)
 
+            // Above the List: an empty plain List still paints an opaque
+            // background, so anything layered beneath it stays invisible.
+            if sections.isEmpty, filterCategoryName != nil {
+                Text("No expenses in this category")
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityIdentifier("filtered-empty")
+            }
+
             if showUndoBar {
                 undoBar
             }
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                categoryFilterMenu
+            }
+        }
     }
 
-    /// One O(n) pass instead of an O(n) scan per row; -1 (never a real row)
-    /// for anything transiently absent so identifiers can't collide.
-    private var indexByID: [PersistentIdentifier: Int] {
-        Dictionary(uniqueKeysWithValues: allExpenses.enumerated().map { ($1.persistentModelID, $0) })
+    private var categoryFilterMenu: some View {
+        Menu {
+            Picker("Category", selection: $filterCategoryName) {
+                Text("All Categories").tag(String?.none)
+                ForEach(availableCategoryNames, id: \.self) { name in
+                    Text(name).tag(String?.some(name))
+                }
+            }
+        } label: {
+            Image(systemName: filterCategoryName == nil
+                ? "line.3.horizontal.decrease.circle"
+                : "line.3.horizontal.decrease.circle.fill")
+        }
+        .accessibilityIdentifier("category-filter-button")
+        .accessibilityLabel("Filter by category")
+    }
+
+    /// Row indices within the currently displayed (filtered) list, one O(n)
+    /// pass instead of an O(n) scan per row; -1 (never a real row) for
+    /// anything transiently absent so identifiers can't collide.
+    private func indexByID(of expenses: [Expense]) -> [PersistentIdentifier: Int] {
+        Dictionary(uniqueKeysWithValues: expenses.enumerated().map { ($1.persistentModelID, $0) })
     }
 
     private func globalIndex(of expense: Expense, in indices: [PersistentIdentifier: Int]) -> Int {

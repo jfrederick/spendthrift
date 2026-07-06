@@ -5,6 +5,9 @@ import SpendthriftCore
 /// 4x3 grid: 1-9, blank, 0, delete. No decimal key by design.
 struct KeypadView: View {
     @Binding var state: AmountEntryState
+    /// Distinguishes keypads that can coexist in the element tree (entry vs
+    /// edit) so accessibility identifiers stay unique.
+    var identifierPrefix: String = "keypad"
 
     private let rows: [[KeypadKey]] = [
         [.digit(1), .digit(2), .digit(3)],
@@ -45,7 +48,7 @@ struct KeypadView: View {
             }
             .buttonStyle(.plain)
             .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
-            .accessibilityIdentifier("keypad-\(d)")
+            .accessibilityIdentifier("\(identifierPrefix)-\(d)")
             .accessibilityLabel("\(d)")
 
         case .delete:
@@ -59,8 +62,10 @@ struct KeypadView: View {
             }
             .buttonStyle(.plain)
             .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
-            .accessibilityIdentifier("keypad-delete")
-            .accessibilityLabel("Delete")
+            .accessibilityIdentifier("\(identifierPrefix)-delete")
+            // Not plain "Delete": that label would collide with the list's
+            // swipe-action Delete button in the element tree.
+            .accessibilityLabel("Delete digit")
 
         case .blank:
             Color.clear
