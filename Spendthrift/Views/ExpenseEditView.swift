@@ -88,6 +88,7 @@ struct ExpenseEditView: View {
 
         do {
             try store.updateExpense(expense, amountDollars: amountState.amount, label: trimmed, category: category)
+            DigestScheduler.refresh(store: store)
             dismiss()
         } catch {
             // No-op: leave the form open so the user can retry.

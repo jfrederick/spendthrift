@@ -296,6 +296,7 @@ struct EntryView: View {
             return
         }
 
+        DigestScheduler.refresh(store: store)
         resetToEmptyAmountStep()
         showSaveConfirmation()
     }

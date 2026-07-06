@@ -32,6 +32,7 @@ struct LogSpokenExpenseIntent: AppIntent {
         switch try SpokenExpenseLogger.log(utterance: utterance, store: store) {
         case let .logged(amountDollars, label, categoryName):
             WidgetCenter.shared.reloadAllTimelines()
+            DigestScheduler.refresh(store: store)
             return .result(dialog: "Logged $\(amountDollars) for \(label) in \(categoryName).")
         case .unparseable:
             return .result(dialog: "I couldn\u{2019}t find an amount and description in \u{201C}\(utterance)\u{201D}. Try something like \u{201C}six dollar coffee\u{201D}.")

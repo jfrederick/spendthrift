@@ -22,6 +22,7 @@
 		4991EA95A3C6C46BDBE795F7 /* SpendthriftWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5257467F15D36F14A6CFF37C /* SpendthriftWidget.swift */; };
 		4A1DFEAFF221603C4B63D3F1 /* SpendthriftWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9832B2EB96393399834E2481 /* SpendthriftWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4A9E3E9D6794C0B875A5B102 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9277F16FD232FECA3534A17A /* Assets.xcassets */; };
+		523D27522DBD3D5DC12258D0 /* DigestPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E5C1F97AC697CEFBEEF2524 /* DigestPreferences.swift */; };
 		5FC31C7E3CEF393DCF1CD940 /* ExpenseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE71B7CCEE6CDFE977CA332E /* ExpenseStore.swift */; };
 		649AF8D7FC8A6B03D00C1E21 /* SpokenExpenseLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCD66EB0676F800E5CC88CE /* SpokenExpenseLogger.swift */; };
 		666A46D8D01F8F6240243A89 /* SpendthriftCore in Frameworks */ = {isa = PBXBuildFile; productRef = 0B4542FE4E5094F3CCC1C543 /* SpendthriftCore */; };
@@ -37,11 +38,13 @@
 		AB032409E0638C4E92B1528A /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0F4D65A141FC36ABC554A5 /* InsightsView.swift */; };
 		B586A1951B9E228D52EE1C64 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 253FA548AF2368B022714131 /* RootTabView.swift */; };
 		C54979C78CB31FC2AA77BC2C /* SpendthriftCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2AA24C32840723EBAD7FBB66 /* SpendthriftCore */; };
+		C5C4969610DCD6BF2BE6259E /* DigestScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F2C877C2013DFBF20CB8F3 /* DigestScheduler.swift */; };
 		C74E4E3F1574B6FD993C38F0 /* SaveExpenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA8F8F1B81C5645ED10069E /* SaveExpenseTests.swift */; };
 		CB1423568DA4EA5807A95788 /* SpendthriftContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C03D0C04BFE7E3201A69F0 /* SpendthriftContainer.swift */; };
 		D1EDE24252406311A2826F60 /* SpokenExpenseLoggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D03E1625EC04A5F2A954E57 /* SpokenExpenseLoggerTests.swift */; };
 		D631786747848F82B03A716C /* CategoryCreationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB3E6953292943494FA86F0 /* CategoryCreationTests.swift */; };
 		E1C37B649E129F1D64D63C43 /* SpendthriftContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31C03D0C04BFE7E3201A69F0 /* SpendthriftContainer.swift */; };
+		EB1BD218E4DC85FAC58C12FD /* DigestSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAB4DA47E5C2EF1FAF258A34 /* DigestSchedulerTests.swift */; };
 		EB9764A14D5EBAC8A4883E19 /* DeleteRestoreExpenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182CD00A57959CAB19E49540 /* DeleteRestoreExpenseTests.swift */; };
 		F1191A5BE0C8CAE3F097E5BA /* TotalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D04B0E294140932B49201DD8 /* TotalsView.swift */; };
 		F25AFA2B1ED5F9E811E462CF /* LabelMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A602C37176D5D29E6D8E0FAE /* LabelMappingTests.swift */; };
@@ -105,6 +108,7 @@
 		35227978E3AE9A5E340C66C2 /* Spendthrift.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Spendthrift.entitlements; sourceTree = "<group>"; };
 		3B7E7114842822E1ED861882 /* LogQuickExpenseIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogQuickExpenseIntent.swift; sourceTree = "<group>"; };
 		3DC54A2E799D44A57D36EF46 /* Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatting.swift; sourceTree = "<group>"; };
+		3E5C1F97AC697CEFBEEF2524 /* DigestPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigestPreferences.swift; sourceTree = "<group>"; };
 		42E9759E99311AF4AB6BA443 /* ExpenseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseListView.swift; sourceTree = "<group>"; };
 		48015141AA3D0F674583861B /* SpendthriftSchema.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendthriftSchema.swift; sourceTree = "<group>"; };
 		480A33D5B34D440CBBAE083D /* Spendthrift.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Spendthrift.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,6 +120,7 @@
 		6AC943D99B1537255618397B /* CategoryPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPickerSheet.swift; sourceTree = "<group>"; };
 		6C12B162C90417B5D19DB7A1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6C379416551DD8A19A26629F /* SpendthriftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendthriftApp.swift; sourceTree = "<group>"; };
+		78F2C877C2013DFBF20CB8F3 /* DigestScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigestScheduler.swift; sourceTree = "<group>"; };
 		7CE2A14F3E2106DFE70026E3 /* UpdateExpenseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateExpenseTests.swift; sourceTree = "<group>"; };
 		8A1C87E64487EE27411EE9D4 /* TrendChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrendChartView.swift; sourceTree = "<group>"; };
 		9277F16FD232FECA3534A17A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -125,6 +130,7 @@
 		A602C37176D5D29E6D8E0FAE /* LabelMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LabelMappingTests.swift; sourceTree = "<group>"; };
 		B146E7FE873510A1997E53DB /* SpendthriftUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SpendthriftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7E423A66A5995239404F306 /* LogSpokenExpenseIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogSpokenExpenseIntent.swift; sourceTree = "<group>"; };
+		BAB4DA47E5C2EF1FAF258A34 /* DigestSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigestSchedulerTests.swift; sourceTree = "<group>"; };
 		BDBA37EB398A50175032583E /* SpendthriftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpendthriftUITests.swift; sourceTree = "<group>"; };
 		BE0BD357FCF1FFA1FC9D181B /* QuickLogWritePathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLogWritePathTests.swift; sourceTree = "<group>"; };
 		CB4321510E8C5BE2933C6B2A /* ContainerMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerMigrationTests.swift; sourceTree = "<group>"; };
@@ -216,6 +222,7 @@
 				6C379416551DD8A19A26629F /* SpendthriftApp.swift */,
 				CED2CD706D76F0CC2E06281D /* Intents */,
 				54B1D79B1C6E983B1626A8C1 /* Models */,
+				A280D31B70F62E0A1D849ABF /* Notifications */,
 				8662131E6D764A66D8F5392C /* Views */,
 			);
 			path = Spendthrift;
@@ -238,6 +245,15 @@
 				8A1C87E64487EE27411EE9D4 /* TrendChartView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		A280D31B70F62E0A1D849ABF /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				3E5C1F97AC697CEFBEEF2524 /* DigestPreferences.swift */,
+				78F2C877C2013DFBF20CB8F3 /* DigestScheduler.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		B0088268382BCA29BCA6ABC4 /* SpendthriftWidgets */ = {
@@ -276,6 +292,7 @@
 				CB4321510E8C5BE2933C6B2A /* ContainerMigrationTests.swift */,
 				0752CDBFCA146640BF7BEB17 /* DeleteCategoryTests.swift */,
 				182CD00A57959CAB19E49540 /* DeleteRestoreExpenseTests.swift */,
+				BAB4DA47E5C2EF1FAF258A34 /* DigestSchedulerTests.swift */,
 				A602C37176D5D29E6D8E0FAE /* LabelMappingTests.swift */,
 				03BC815DD15C04026F0EA29F /* PersistenceRoundTripTests.swift */,
 				1944CA78F03FC2C54703981D /* QueryTests.swift */,
@@ -461,6 +478,7 @@
 				A40F76E27DE9A68F8BBE465C /* ContainerMigrationTests.swift in Sources */,
 				0FAE9DCC9B5BE5697A402ABF /* DeleteCategoryTests.swift in Sources */,
 				EB9764A14D5EBAC8A4883E19 /* DeleteRestoreExpenseTests.swift in Sources */,
+				EB1BD218E4DC85FAC58C12FD /* DigestSchedulerTests.swift in Sources */,
 				F25AFA2B1ED5F9E811E462CF /* LabelMappingTests.swift in Sources */,
 				46573E1863EE41410B88C300 /* PersistenceRoundTripTests.swift in Sources */,
 				97D1AA1ED2D8BFEFC1C17E16 /* QueryTests.swift in Sources */,
@@ -480,6 +498,8 @@
 				FC59981B488DC5569B5E3374 /* AmountDisplayView.swift in Sources */,
 				F5845D4A52F446D182E8642A /* CategoryColor.swift in Sources */,
 				6741AF52A2B39F1E0FDFCFE8 /* CategoryPickerSheet.swift in Sources */,
+				523D27522DBD3D5DC12258D0 /* DigestPreferences.swift in Sources */,
+				C5C4969610DCD6BF2BE6259E /* DigestScheduler.swift in Sources */,
 				82885513D5A077C45EB7C9F9 /* EntryView.swift in Sources */,
 				A553115844011AADDB0ECB70 /* ExpenseEditView.swift in Sources */,
 				6939E3DD23985F11A62F3E4B /* ExpenseListView.swift in Sources */,

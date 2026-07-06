@@ -251,6 +251,20 @@ final class SpendthriftUITests: XCTestCase {
 
     // MARK: - Insights screen
 
+    func test_insights_showsWeeklyDigestToggle() {
+        let app = launchedApp(seedData: true)
+
+        app.tabBars.buttons["Totals"].tap()
+
+        let insightsButton = element(app, id: "insights-button")
+        XCTAssertTrue(insightsButton.waitForExistence(timeout: 5))
+        insightsButton.tap()
+
+        // Opt-in toggle is present and off by default (fresh install).
+        let toggle = element(app, id: "insights-digest-toggle")
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
+    }
+
     func test_insights_opensShowingCurrentMonth() {
         let app = launchedApp(seedData: true)
 
