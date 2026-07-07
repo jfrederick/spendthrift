@@ -13,6 +13,14 @@ public struct SpendSummary: Equatable, Sendable {
         self.thisYear = thisYear
     }
 
+    /// Placeholder / store-unavailable fallback.
+    public static let zero = SpendSummary(today: 0, thisMonth: 0, thisYear: 0)
+
+    /// The widget's status threshold: red once anything has been spent
+    /// today, light green otherwise (spec: widget-quick-entry). Kept here so
+    /// the policy is unit-tested; the widget only maps it to colors.
+    public var hasSpentToday: Bool { today > 0 }
+
     /// Sums expenses into the day/month/year periods containing `date`,
     /// using the given calendar's period boundaries (half-open intervals,
     /// matching every other aggregation in the app).

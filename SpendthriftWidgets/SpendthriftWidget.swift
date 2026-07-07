@@ -4,13 +4,8 @@ import WidgetKit
 import SpendthriftCore
 import os
 
-/// Whole-dollar formatting, mirroring the app's `Formatting.swift` (which
-/// belongs to the app target and is not compiled into the extension).
-extension Int {
-    var wholeDollars: String {
-        formatted(.currency(code: "USD").precision(.fractionLength(0)))
-    }
-}
+// Int.wholeDollars comes from SpendthriftCore (DollarFormatting.swift) — the
+// one formatter every surface shares; don't shadow it with a local copy.
 
 struct SpendthriftWidgetEntry: TimelineEntry {
     let date: Date
@@ -21,7 +16,7 @@ struct SpendthriftWidgetEntry: TimelineEntry {
 
 struct SpendthriftWidgetProvider: TimelineProvider {
     func placeholder(in context: Context) -> SpendthriftWidgetEntry {
-        SpendthriftWidgetEntry(date: .now, summary: SpendSummary(today: 0, thisMonth: 0, thisYear: 0), presets: [])
+        SpendthriftWidgetEntry(date: .now, summary: .zero, presets: [])
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SpendthriftWidgetEntry) -> Void) {
@@ -60,7 +55,7 @@ struct SpendthriftWidgetProvider: TimelineProvider {
     /// expenses yet").
     private static func loadEntry(at date: Date) -> SpendthriftWidgetEntry {
         guard let container = sharedContainer else {
-            return SpendthriftWidgetEntry(date: date, summary: SpendSummary(today: 0, thisMonth: 0, thisYear: 0), presets: [])
+            return SpendthriftWidgetEntry(date: date, summary: .zero, presets: [])
         }
         let context = ModelContext(container)
         let expenses = (try? context.fetch(FetchDescriptor<Expense>())) ?? []
@@ -81,12 +76,12 @@ struct SpendthriftWidgetView: View {
     @Environment(\.widgetFamily) private var family
     let entry: SpendthriftWidgetEntry
 
-    /// Status ring: light green while nothing has been spent today, red the
-    /// moment money starts burning (spec: widget-quick-entry).
+    /// Status ring colors; the spent-today threshold itself is Core policy
+    /// (SpendSummary.hasSpentToday, unit-tested there).
     private var statusColor: Color {
-        entry.summary.today == 0
-            ? Color(red: 0.55, green: 0.85, blue: 0.55)
-            : Color(red: 0.90, green: 0.26, blue: 0.21)
+        entry.summary.hasSpentToday
+            ? Color(red: 0.90, green: 0.26, blue: 0.21)
+            : Color(red: 0.55, green: 0.85, blue: 0.55)
     }
 
     var body: some View {
@@ -99,7 +94,7 @@ struct SpendthriftWidgetView: View {
             case .accessoryRectangular:
                 rectangularView
             default:
-                smallView
+                summaryStack
             }
         }
         .containerBackground(for: .widget) {
@@ -113,10 +108,6 @@ struct SpendthriftWidgetView: View {
             }
         }
         .widgetURL(URL(string: "spendthrift://entry"))
-    }
-
-    private var smallView: some View {
-        summaryStack
     }
 
     private var mediumView: some View {

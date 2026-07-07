@@ -40,7 +40,15 @@ struct SpendSummaryTests {
     @Test("no expenses yields zeros")
     func emptyIsZero() {
         let summary = SpendSummary.compute(expenses: [], asOf: Self.now, calendar: Self.calendar())
-        #expect(summary == SpendSummary(today: 0, thisMonth: 0, thisYear: 0))
+        #expect(summary == .zero)
+    }
+
+    @Test("status threshold: any spending today flips hasSpentToday")
+    func hasSpentTodayThreshold() {
+        #expect(!SpendSummary.zero.hasSpentToday)
+        // Spending earlier this month/year but not today stays green.
+        #expect(!SpendSummary(today: 0, thisMonth: 310, thisYear: 4200).hasSpentToday)
+        #expect(SpendSummary(today: 1, thisMonth: 311, thisYear: 4201).hasSpentToday)
     }
 
     @Test("period boundaries are half-open in the calendar's time zone")
